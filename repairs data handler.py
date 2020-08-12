@@ -1,6 +1,7 @@
 # Python 3.8.3, Openpyxl 3.0.4 
 # Name: Michael Tunduli
 # Email: wafutu@gmail.com 
+# Date : 2nd July 2020
 
 """ This script is to help in verification 
 and data entry of UNSOS Equipment repairs in EMU.
@@ -18,123 +19,131 @@ import sys
 import  openpyxl
 
 from openpyxl import load_workbook
+from openpyxl.utils import range_boundaries
+from openpyxl.utils.cell import coordinate_from_string 
+from openpyxl.utils.cell import column_index_from_string
 
 #load the desired xlsx workbook
-def open_file1():
+def open_ac_data_file():
     global wb1
-    global ws
-    global file1
-    file1 = "A:\\0Excel\\acdata.xlsx"
-    wb1 = load_workbook(file1)
-    print(wb1.sheetnames)
+    global ws1
+    global ac_data_file
+    ac_data_file = "A:\\0Excel\\acdata.xlsx"
+    print("\nOpening file_1.........")
+    wb1 = load_workbook(ac_data_file)
+    print("\n" + str(wb1.sheetnames))
 
-    ws = wb1['Sheet1'] # open the specific sheet with data
-
-    print('\n')
-    print(ws.max_row)
-    print(ws.max_column)
+    ws1 = wb1['Sheet1'] # open the specific sheet with data
+    print("\n" + "max_row : " + str(ws1.max_row) + "\nmax_column :" + str(ws1.max_column))
     
-open_file1()    
-
-def my_list():
-    global my_list
-    my_list = []
-
-    for col in ws.iter_cols(min_row=2, min_col=8, max_col=8, max_row=3295):
-        for cell in col:
-            my_list.append(cell.value)
-    print("\n----------------")        
-    print("THIS IS LIST 1:\n")        
-    print(my_list)
-    
-my_list()
-        
-print("\n----------------")
-print("\n----------------\n")
+open_ac_data_file()    
 
 # load the desired second  xlsx workbook that is to be compared
-file2 = "A:\\0Excel\\acraidata.xlsx"
-wb2 = load_workbook(file2)
-print(wb2.sheetnames)
-
-ws2 = wb2['Sheet1'] # open the specific sheet with data
-
-print('\n')
-print(ws2.max_row)
-print(ws2.max_column)
-
-def my_list2():
-    global my_list2
-    my_list2 = []
-    for col in ws2.iter_cols(min_row=5, min_col= 3, max_col=3, max_row=37):
-        for cell in col:
-            my_list2.append(cell.value)
-    print("\nTHIS IS LIST 2:\n")        
-    print(my_list2)
+def open_rai_ac_serials_list (): 
+    global rai_ac_serials_list
+    global ws2   
+    rai_ac_serials_list = "A:\\0Excel\\acraidata.xlsx"
+    print("\nOpening file_2..........")
+    wb2 = load_workbook(rai_ac_serials_list)
+    print("\n" + str(wb2.sheetnames))
+    ws2 = wb2['Sheet1'] # open the specific sheet with data
+    print("\n" + "max_row : " + str(ws2.max_row) + "\nmax_column :" + str(ws2.max_column))
     
-my_list2()
+open_rai_ac_serials_list()
+
+def ac_serials_list():
+    global ac_serials_list
+    ac_serials_list = []
+
+    for col in ws1.iter_cols(min_row = 2, min_col = 4, max_col = 4, max_row = 3295+1):
+        for cell in col:
+            if cell.value != None and cell.value != '':
+                ac_serials_list.append(cell.value)
+    print("\n----------------\n")        
+    print("THIS IS ALL SERIALS LIST:\n")
+    print("THE NUMBER OF ALL SERIALS FOUND IS :" + str(len(ac_serials_list))+"\n")        
+    print(ac_serials_list)
+    
+ac_serials_list()
         
 print("\n----------------")
-print("\n----------------\n")
+
+def rai_serials_list():
+    global rai_serials_list
+    rai_serials_list = []
+    for col in ws2.iter_cols(min_row = 5, min_col = 3, max_col = 3, max_row = 37):
+        for cell in col:
+            if cell.value != None and cell.value != '': 
+                rai_serials_list.append(cell.value)
+    print("\nTHIS IS RAI SERIALS LIST:\n") 
+    print("THE NUMBER OF RAI SERIALS FOUND IS :" + str(len(rai_serials_list))+"\n")       
+    print(rai_serials_list)
+    
+rai_serials_list()
+        
+print("\n----------------")
 
 # compare the serial numbers of all the equipment we have with the serials of the submitted ones.
 def compare_lists():
     global new_serial
     new_serial = []        
-    for i in my_list2:
-        if i not in my_list:
+    for i in rai_serials_list:
+        if i not in ac_serials_list:
             new_serial.append(i)
-    print("\n-----------------")          
+    print("\n-----------------\n")          
     print("THIS ARE NEW SERIALS:")
+    print("THE NUMBER OF NEW SERIALS FOUND IS :" + str(len(new_serial))+"\n")
     print(new_serial)
 
 compare_lists()
 
-# get the name of all the rooms that we have and make a list keep a list of them
+# get the name of all the rooms that we have and make a list
 def all_my_rooms_list():
     global all_my_rooms_list
     all_my_rooms_list = []
-    for col in ws.iter_cols(min_row=5, min_col= 5, max_col=5, max_row = ws.max_row +1):
+    for col in ws1.iter_cols(min_row = 5, min_col = 9, max_col = 9, max_row = ws1.max_row +1):
         for cell in col:
             all_my_rooms_list.append(cell.value)
     
-    print("\n-----------------")         
+    print("\n-----------------\n")         
     print("THIS IS ALL ROOMS LIST:")
-    print("THE NUMBER OF ROOMS FOUND IS :" + str(len(all_my_rooms_list))+"\n")
+    print("THE NUMBER OF ALL ROOMS FOUND IS :" + str(len(all_my_rooms_list))+"\n")
     print(all_my_rooms_list)
 
 all_my_rooms_list() 
 
 # get the new rooms fromm he submitted works summary
-def new_rooms_list():
-    global new_rooms_list
-    new_rooms_list = []
+def rai_rooms_list():
+    global rai_rooms_list
+    rai_rooms_list = []
     for col in ws2.iter_cols(min_row=5, min_col= 2, max_col=2, max_row = 45):
         for cell in col:
-            new_rooms_list.append(cell.value)
+            rai_rooms_list.append(cell.value)
     
     print("\n-----------------")         
-    print("THIS IS NEW ROOMS LIST:")
-    print("THIS IS THE NUMBER OF ROOMS FOUND :" + str(len(new_rooms_list))+"\n")
-    print(new_rooms_list)
+    print("THIS IS RAI ROOMS LIST:")
+    print("THE NUMBER OF RAI ROOMS FOUND IS :" + str(len(rai_rooms_list))+"\n")
+    print(rai_rooms_list)
 
-new_rooms_list()        
+rai_rooms_list()        
 
 # compare the rooms from the current submitted works summary with all the number of rooms that we have
 def compare_rooms():
     global new_rooms
     new_rooms = []        
-    for i in new_rooms_list:
+    for i in rai_rooms_list:
         if i not in all_my_rooms_list:
             new_rooms.append(i)
     print("\n-----------------")        
     print("THIS ARE NEW ROOMS:")
-    print("THIS IS THE NUMBER OF ROOMS FOUND :" + str(len(new_rooms))+"\n")  
+    print("THE NUMBER OF ROOMS FOUND IS :" + str(len(new_rooms))+"\n")  
     print(new_rooms)
     
 compare_rooms()
 
 # copy the specific data to the required places in different worksheets
+
+#getting data from the new rooms and copying to all rooms data:
 
 
     
