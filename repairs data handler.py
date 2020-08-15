@@ -28,13 +28,11 @@ import  openpyxl
 import xlrd
 import xlsxwriter
 
-
 from openpyxl import load_workbook
 from openpyxl.cell.cell import Cell
 from openpyxl.utils import range_boundaries
 from openpyxl.utils.cell import coordinate_from_string, rows_from_range 
 from openpyxl.utils.cell import column_index_from_string
-
 
 workbook1_path = "A:\\0Excel\acdata.xlsx"
 workbook2_path = "A:\\0Excel\acraidata.xlsx"
@@ -116,7 +114,7 @@ def compare_serials():
     #print("\n-----------------\n")          
     #print("THIS ARE NEW SERIALS:")
     #print("THE NUMBER OF NEW SERIALS FOUND IS :" + str(len(new_serials_list))+"\n")
-    #print(new_serials_list)
+    print(new_serials_list)
     return(new_serials_list)
 
 compare_serials()
@@ -132,7 +130,7 @@ def new_serial_rows():
     
     row_count = ws2.max_row
     new_serial_rows = []
-    for j in range(2, row_count):
+    for j in range(1, row_count):
         ac_serials_cell = ws2.cell(row = j, column = 3)
         current_ac_serial = ac_serials_cell.value
         if current_ac_serial in new_serials_list:
@@ -148,31 +146,37 @@ new_serial_rows()
 # copy the record on the rows of the row numbers found above.
 #copy the lists of records to excel sheet.
 
-#Open source data file
-workbook = openpyxl.load_workbook('A:\\0Excel\\acraidata.xlsx')
+wb2 = load_workbook("A:\\0Excel\\acraidata.xlsx")
 ws2 = wb2['Sheet1']
-
-#open destination workbook that includes the master database
-wb3 = load_workbook('A:\\0Excel\\template.xlsx')
-destSheet = wb3['Sheet1']
-
-#grab master spreadsheet data and write to list
-worksheet = workbook .active
-rows = list(worksheet.iter_rows(max_col = 6, values_only=True))
-masterList1 = []
+rows = list(ws2.iter_rows(max_col=6, values_only=True))
+values = []
 row_indices = new_serial_rows
 for row_index in row_indices:
-        masterList1.extend(list(rows[row_index]))
+    values.append(rows[row_index])
 
-print('\n----------\n' + '\nMASTERLIST1 :\n' + str(masterList1))
+print('\n----------\n' + '\nNEW AC RECORDS LIST :\n' + str(values))
 
-#write new master list to a new file
-for rowNum in range(1, len(masterList1)):
-    destSheet.cell(row=rowNum, column=6).value = masterList1[:4]
-    
-wb3.save("A:\\0Excel\\updatedTest.xlsx")
+#copy the lists of records to excel sheet. using
+# xlrd & xlsxwriter
+# open old file
+old_path = "A:\\0Excel\\acraidata.xlsx"
+old_workbook = xlrd.open_workbook(old_path)
+old_worksheet = old_workbook.sheet_by_index(0)
 
-        
+# copy data
+all_rows = values
+
+# create new file
+new_path = "A:\\0Excel\\template.xlsx"
+new_workbook = xlsxwriter.Workbook(new_path)
+new_worksheet = new_workbook.add_worksheet()
+
+#populate the new file
+for row in range (len(all_rows)):
+    for col in range (len(all_rows[2])):
+        new_worksheet.write(row, col, all_rows[row][col])
+new_workbook.close()
+
 def new_serials_record():
     
     global new_serials_record
@@ -194,12 +198,8 @@ def new_serials_record():
     return(new_serials_record)
 
 new_serials_record()
-    
-    
-
 
 # paste the records in a new excel file called new_serials list
-
 
 # get the name of all the rooms that we have and make a list
 def all_my_rooms_list():
@@ -252,7 +252,6 @@ compare_rooms()
 # copy the record on the rows of the row numbers found above.
 
 # paste the records in a new excel file called new_serials list 
-
 
 # get the three names of the room as per three rows:
 #**** compound or location
@@ -322,15 +321,11 @@ def new_3_names_room_list():
     
 new_3_names_room_list()
 
-
-
 # get the row numbers of the new_3_ names_room_list
 
 # copy the record on the rows of the new_3_ names_room_list above.
 
 # paste the records in a new excel file called new_3_ names_room_list
-
-
 
 # copy the specific data to the required places in different worksheets
 
@@ -385,6 +380,3 @@ def createData():
     return(createData)
     
 createData()
-
-
-    
